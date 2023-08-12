@@ -1,6 +1,8 @@
 const express = require("express");
 const cors = require("cors");
 const app = express();
+const profileRoutes = require('./routes/profileRoutes');
+const collectionRoutes = require('./routes/collectionRoutes');
 
 
 //Middleware
@@ -15,6 +17,11 @@ app.use(express.static('public')); // Serve static files from the 'public' direc
 app.get("/", (req, res) => {
     res.send("Hello");
   });
+
+Routes
+app.use('/profile', profileRoutes);
+app.use('/collection',collectionRoutes);
+
 
 
 app.listen(PORT, () => console.log(`Listening on http://localhost:${PORT}`));

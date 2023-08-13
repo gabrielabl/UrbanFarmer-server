@@ -61,19 +61,7 @@ exports.newProfile = (req, res) => {
   //Adding profile to Database
 
   knex("users")
-    .insert({
-      id: uuidv4(),
-      user_name: user_name,
-      email: email,
-      password: password,
-      avatar_photo: avatar_photo,
-      city: city,
-      province: province,
-      likes: 0,
-      views: 0,
-      trades: 0,
-      about: about,
-    })
+    .insert({ ...newProfile, id: uuidv4() })
     .then((data) => {
       // Response returns 201 if successful
       return res.status(201).json({ success: `Profile Added` });
@@ -89,7 +77,7 @@ exports.updateProfile = (req, res) => {
 
   //Variables
   const updateProfile = req.body;
-  const { email } =updateProfile;
+  const { email } = updateProfile;
   const userId = req.params.id;
 
   //Validation
@@ -125,5 +113,27 @@ exports.updateProfile = (req, res) => {
     // server error
     .catch((err) => {
       return res.status(500).json({ error: `Server error, ${err}` });
+    });
+};
+
+exports.profileCollection = (req, res) => {
+  //Variables
+  const userID = req.params.id;
+  knex("items")
+    .where({ users_id: userID })
+    .then((data) => {
+      //Validating if user exist in the Database
+      if (data.length === 0) {
+        res.status(200).json({
+          message: `User id:${userID} not found or empty collection`,
+        });
+      } else {
+        res.status(200).json(data);
+      }
+    })
+    .catch((err) => {
+      // Server error
+      console.error("Error when fetching inventory items:", err);
+      res.status(500).json({ error: "Internal server error" });
     });
 };

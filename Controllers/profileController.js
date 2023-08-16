@@ -9,6 +9,7 @@ exports.singleProfile = (req, res) => {
 
   knex("users")
     .where({ id: idReq })
+    .select('user_name','avatar_photo','city','province','likes','views','trades','about')
     .then((data) => {
       if (!data.length) {
         return res

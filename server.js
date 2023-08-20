@@ -16,13 +16,14 @@ app.use(express.static("public")); // Serve static files from the 'public' direc
 // Auth Middleware
 app.use((req, res, next) => {
 
-  if(req.headers.authorization === undefined){
-    res.status(403).json({error: 'Access not allowed'})
-  }
   //Applying auth middleware to all routes except to start page,about page and sign up
   if (req.url === "/signup" || req.url === "/login") {
     next();
   } else {
+
+  if(req.headers.authorization === undefined){
+    res.status(403).json({error: 'Access not allowed'})
+  }
     //Editing the form of token
     const token = req.headers.authorization.split(" ")[1];
     //Verifying token

@@ -6,7 +6,6 @@ const { v4: uuidv4 } = require("uuid");
 require("dotenv").config();
 const { SECRET_KEY } = process.env;
 
-
 exports.signUp = (req, res) => {
   //Note avatar photo uploading will be set-up in conjunction with front-end
 
@@ -53,28 +52,55 @@ exports.signUp = (req, res) => {
     })
     //Server error
     .catch((err) => {
-      res.status(500).json({ error: `Failed to add profile, ${err}` });
+      return res.status(500).json({ error: `Failed to add profile, ${err}` });
     });
 };
 
-exports.login = (req,res)=>{
-    const {email, password} = req.body;
-    knex('users')
-    .where({email:email})
-    .then((data)=>{
-        const user = data[0];
-        if(!user){
-            res.status(403).json({ error: 'User not found in database'});
-        } else if(bcrypt.compareSync(password, user.password)){
-            const token = jwt.sign({email: user.email}, SECRET_KEY);
-            res.status(200).json({
-                token: token,
-                message: `Successful login`,
-            })
-        } else {
-            res.status(403).json({error: 'Incorrect password'})
-        }
+exports.login = (req, res) => {
+  const { email, password } = req.body;
+  knex("users")
+    .where({ email: email })
+    .then((data) => {
+      const user = data[0];
+      if (!user) {
+        res.status(403).json({ error: "User not found in database" });
+      } else if (bcrypt.compareSync(password, user.password)) {
+        const token = jwt.sign({ email: user.email }, SECRET_KEY);
+        res.status(200).json({
+          token: token,
+          message: `Successful login`,
+        });
+      } else {
+        res.status(403).json({ error: "Incorrect password" });
+      }
+    });
+};
 
+exports.profileUser = (req, res) => {
+  const userEmail = req.decode.email;
+
+  knex("users")
+    .where({ email: userEmail })
+    .select(
+      "id",
+      "user_name",
+      "avatar_photo",
+      "city",
+      "province",
+      "likes",
+      "views",
+      "trades",
+      "about"
+    )
+    .then((data) => {
+      if (!data.length) {
+        return res
+          .status(404)
+          .send(`Record with id: ${userEmail} is not found`);
+      }
+      res.status(200).json(data[0]);
     })
-
-}
+    .catch((err) =>
+      res.status(400).json({ error: `Error retrieving Profile, ${err}` })
+    );
+};

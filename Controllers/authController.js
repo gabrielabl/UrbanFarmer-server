@@ -65,7 +65,7 @@ exports.login = (req, res) => {
       if (!user) {
         res.status(403).json({ error: "User not found in database" });
       } else if (bcrypt.compareSync(password, user.password)) {
-        const token = jwt.sign({ email: user.email }, SECRET_KEY);
+        const token = jwt.sign({ email: user.email, userId: user.id}, SECRET_KEY);
         res.status(200).json({
           token: token,
           message: `Successful login`,
@@ -77,10 +77,10 @@ exports.login = (req, res) => {
 };
 
 exports.profileUser = (req, res) => {
-  const userEmail = req.decode.email;
+  const userId = req.decode.userId;
 
   knex("users")
-    .where({ email: userEmail })
+    .where({ id: userId })
     .select(
       "id",
       "user_name",
@@ -96,11 +96,29 @@ exports.profileUser = (req, res) => {
       if (!data.length) {
         return res
           .status(404)
-          .send(`Record with id: ${userEmail} is not found`);
+          .send(`Record with id: ${userId} is not found`);
       }
       res.status(200).json(data[0]);
     })
     .catch((err) =>
       res.status(400).json({ error: `Error retrieving Profile, ${err}` })
     );
+};
+
+//This verify if email is already in database, it prevents multiples users with the same email
+exports.emailDbCheck = (req,res)=>{
+const email = req.body.email;
+knex('users')
+.where({email: email})
+.then((data) => {
+  console.log(data)
+  if(data.length > 0){
+   return  res.status(200).json({message:"Email already in database"});
+  } else {
+    return  res.status(200).json({message:"Email not in database"});
+  }
+})
+.catch((err) =>
+  res.status(400).send(`Error retrieving collection items: ${err}`)
+);
 };

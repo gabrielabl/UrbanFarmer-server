@@ -5,6 +5,8 @@ const jwt = require("jsonwebtoken");
 const profileRoutes = require("./routes/profileRoutes");
 const collectionRoutes = require("./routes/collectionRoutes");
 const authRoutes = require("./routes/authRoutes");
+const knex = require("knex")(require("./knexfile"));
+
 
 //Middleware
 require("dotenv").config();
@@ -17,7 +19,7 @@ app.use(express.static("public")); // Serve static files from the 'public' direc
 app.use((req, res, next) => {
 
   //Applying auth middleware to all routes except to start page,about page and sign up
-  if (req.url === "/signup" || req.url === "/login") {
+  if (req.url === "/signup" || req.url === "/login" || req.url === "/emailcheck") {
     next();
   } else {
 

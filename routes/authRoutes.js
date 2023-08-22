@@ -10,4 +10,7 @@ router.route('/login')
 router.route('/profile')
 .get(authController.profileUser);
 
+router.route('/emailcheck')
+.get(authController.emailDbCheck);
+
 module.exports = router;

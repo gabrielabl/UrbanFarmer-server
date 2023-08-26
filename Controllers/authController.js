@@ -111,9 +111,9 @@ const email = req.body.email;
 knex('users')
 .where({email: email})
 .then((data) => {
-  console.log(data)
+
   if(data.length > 0){
-   return  res.status(200).json({message:"Email already in database"});
+   return  res.status(302).json({message:"Email already in database"});
   } else {
     return  res.status(200).json({message:"Email not in database"});
   }

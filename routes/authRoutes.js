@@ -11,6 +11,6 @@ router.route('/profile')
 .get(authController.profileUser);
 
 router.route('/emailcheck')
-.get(authController.emailDbCheck);
+.post(authController.emailDbCheck);
 
 module.exports = router;

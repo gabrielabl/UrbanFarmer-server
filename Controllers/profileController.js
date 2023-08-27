@@ -1,4 +1,5 @@
 const knex = require("knex")(require("../knexfile"));
+const multer = require("multer");
 
 exports.singleProfile = (req, res) => {
   // Variables
@@ -31,30 +32,55 @@ exports.singleProfile = (req, res) => {
     );
 };
 
-exports.updateProfile = (req, res) => {
-  //Note avatar photo uploading will be set-up in conjunction with front-end
-
+exports.updateProfile = (req, res, next) => {
   //Variables
-  const updateProfile = req.body;
-  const { email } = updateProfile;
   const userId = req.params.id;
+
+  //Storage variable
+  const filePath = process.cwd() + "/public/images";
+
+  // Middleware
+  const storage = multer.diskStorage({
+    destination: function (req, file, callback) {
+      callback(null, filePath);
+    },
+    filename: function (req, file, callback) {
+      callback(null, new Date().valueOf()+ userId+file.originalname);
+    },
+  });
+
+  //Middleware to process the file upload
+  const upload = multer({ storage: storage }).single("avatar_photo");
+
+
+      upload(req, res, function (err) {
+      if (err instanceof multer.MulterError) {
+        // A Multer error occurred when uploading
+        return res.status(500).json({ error: "Multer error: " + err.message });
+      } else if (err) {
+        // An unknown error occurred when uploading
+        return res.status(500).json({ error: "Unknown error: " + err.message });
+      }
+
+    
+const fileName = req.file.filename;
+
+  let updateProfile = req.body;
 
   //Validation
   //Validation missing properties in the request body
   for (let key in updateProfile) {
-    if (updateProfile[key] == undefined) {
+    if (!updateProfile[key]) {
       return res.status(400).json({
         error: `Empty field on: ${key}. Please make sure to provide information`,
       });
     }
   }
 
-  //Validating email address
-  if (!email.includes("@")) {
-    return res.status(400).json({ error: "Invalid Email" });
-  }
 
   //Updating profile to Database
+  
+  updateProfile = {...updateProfile, avatar_photo: fileName}
 
   knex("users")
     .where({ id: userId })
@@ -73,6 +99,7 @@ exports.updateProfile = (req, res) => {
     .catch((err) => {
       return res.status(500).json({ error: `Server error, ${err}` });
     });
+  });
 };
 
 exports.profileCollection = (req, res) => {

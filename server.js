@@ -13,7 +13,7 @@ require("dotenv").config();
 const { PORT, CORS_ORIGIN, SECRET_KEY } = process.env;
 app.use(cors({ origin: CORS_ORIGIN })); // Enable CORS
 app.use(express.json()); // Parse incoming JSON data
-app.use(express.static("public")); // Serve static files from the 'public' directory
+app.use(express.static("public/images")); // Serve static files from the 'public' directory
 
 // Auth Middleware
 app.use((req, res, next) => {
@@ -29,7 +29,7 @@ app.use((req, res, next) => {
     //Editing the form of token
     const token = req.headers.authorization.split(" ")[1];
     //Verifying token
-    if (token) {
+    if (req.headers.authorization.split(" ")[1]) {
       if (jwt.verify(token, SECRET_KEY)) {
         //Access do data
         req.decode = jwt.decode(token);

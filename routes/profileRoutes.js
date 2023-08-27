@@ -3,7 +3,7 @@ const profileController = require('../Controllers/profileController');
 
 router.route('/:id')
 .get(profileController.singleProfile)
-.put(profileController.updateProfile);
+.patch(profileController.updateProfile);
 
 router.route('/:id/collection')
 .get(profileController.profileCollection)

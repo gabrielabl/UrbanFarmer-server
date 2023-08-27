@@ -7,29 +7,30 @@ const collectionRoutes = require("./routes/collectionRoutes");
 const authRoutes = require("./routes/authRoutes");
 const knex = require("knex")(require("./knexfile"));
 
-
 //Middleware
 require("dotenv").config();
 const { PORT, CORS_ORIGIN, SECRET_KEY } = process.env;
 app.use(cors({ origin: CORS_ORIGIN })); // Enable CORS
 app.use(express.json()); // Parse incoming JSON data
-app.use(express.static("public")); // Serve static files from the 'public' directory
+app.use(express.static("public/images")); // Serve static files from the 'public' directory
 
 // Auth Middleware
 app.use((req, res, next) => {
-
   //Applying auth middleware to all routes except to start page,about page and sign up
-  if (req.url === "/signup" || req.url === "/login" || req.url === "/emailcheck") {
+  if (
+    req.url === "/signup" ||
+    req.url === "/login" ||
+    req.url === "/emailcheck" ||
+    req === "/"
+  ) {
     next();
+  } else if (req.headers.authorization === undefined) {
+    return res.status(403).json({ error: "Access not allowed" });
   } else {
-
-  if(req.headers.authorization === undefined){
-    res.status(403).json({error: 'Access not allowed'})
-  }
     //Editing the form of token
     const token = req.headers.authorization.split(" ")[1];
     //Verifying token
-    if (token) {
+    if (req.headers.authorization.split(" ")[1]) {
       if (jwt.verify(token, SECRET_KEY)) {
         //Access do data
         req.decode = jwt.decode(token);

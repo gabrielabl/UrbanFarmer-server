@@ -1,4 +1,5 @@
 const knex = require("knex")(require("../knexfile"));
+const multer = require("multer");
 
 exports.singleProfile = (req, res) => {
   // Variables
@@ -32,47 +33,76 @@ exports.singleProfile = (req, res) => {
 };
 
 exports.updateProfile = (req, res) => {
-  //Note avatar photo uploading will be set-up in conjunction with front-end
-
   //Variables
-  const updateProfile = req.body;
-  const { email } = updateProfile;
   const userId = req.params.id;
 
-  //Validation
-  //Validation missing properties in the request body
-  for (let key in updateProfile) {
-    if (updateProfile[key] == undefined) {
-      return res.status(400).json({
-        error: `Empty field on: ${key}. Please make sure to provide information`,
-      });
+  //Storage variable
+  const filePath = process.cwd() + "/public/images";
+
+  // Middleware
+  const storage = multer.diskStorage({
+    destination: function (req, file, callback) {
+      callback(null, filePath);
+    },
+    filename: function (req, file, callback) {
+      callback(null, new Date().valueOf() + userId + file.originalname);
+    },
+  });
+
+  //Middleware to process the file upload
+  const upload = multer({ storage: storage }).single("avatar_photo");
+
+  upload(req, res, function (err) {
+    if (err instanceof multer.MulterError) {
+      // A Multer error occurred when uploading
+      return res.status(500).json({ error: "Multer error: " + err.message });
+    } else if (err) {
+      // An unknown error occurred when uploading
+      return res.status(500).json({ error: "Unknown error: " + err.message });
     }
-  }
 
-  //Validating email address
-  if (!email.includes("@")) {
-    return res.status(400).json({ error: "Invalid Email" });
-  }
+    //Variable to upload new data
+    let updateProfile = req.body;
 
-  //Updating profile to Database
-
-  knex("users")
-    .where({ id: userId })
-    .update(updateProfile)
-    .then((data) => {
-      //Validating warehouse ID
-      if (data === 0) {
-        // return 404 with id not found
-        return res
-          .status(404)
-          .json({ error: `Warehouse id: ${userId} not found` });
+    //Validation
+    //Validation missing properties in the request body
+    for (let key in updateProfile) {
+      if (!updateProfile[key]) {
+        return res.status(400).json({
+          error: `Empty field on: ${key}. Please make sure to provide information`,
+        });
       }
-      return res.status(200).json(req.body);
-    })
-    // server error
-    .catch((err) => {
-      return res.status(500).json({ error: `Server error, ${err}` });
-    });
+    }
+
+    //When not data is provided to be uploaded
+    if (req.file !== undefined) {
+      const fileName = req.file.filename;
+      updateProfile = { ...updateProfile, avatar_photo: fileName };
+    }
+
+    if (Object.keys(req.body).length === 0 && req.file === undefined) {
+      return res.status(400).json({ error: "Not profile data do be uploaded" });
+    }
+
+    // //Updating profile to Database
+    knex("users")
+      .where({ id: userId })
+      .update(updateProfile)
+      .then((data) => {
+        //Validating warehouse ID
+        if (data === 0) {
+          // return 404 with id not found
+          return res
+            .status(404)
+            .json({ error: `user id: ${userId} not found` });
+        }
+        return res.status(200).json(req.body);
+      })
+      // server error
+      .catch((err) => {
+        return res.status(500).json({ error: `Server error, ${err}` });
+      });
+  });
 };
 
 exports.profileCollection = (req, res) => {

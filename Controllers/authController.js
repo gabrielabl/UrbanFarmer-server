@@ -57,14 +57,14 @@ exports.signUp = (req, res) => {
 };
 
 exports.login = (req, res) => {
-  const { email, password } = req.body;
+  const { emailLogin, passwordLogin } = req.body;
   knex("users")
-    .where({ email: email })
+    .where({ email: emailLogin })
     .then((data) => {
       const user = data[0];
       if (!user) {
         res.status(403).json({ error: "User not found in database" });
-      } else if (bcrypt.compareSync(password, user.password)) {
+      } else if (bcrypt.compareSync(passwordLogin, user.password)) {
         const token = jwt.sign({ email: user.email, userId: user.id}, SECRET_KEY);
         res.status(200).json({
           token: token,
@@ -111,9 +111,9 @@ const email = req.body.email;
 knex('users')
 .where({email: email})
 .then((data) => {
-  console.log(data)
+
   if(data.length > 0){
-   return  res.status(200).json({message:"Email already in database"});
+   return  res.status(302).json({message:"Email already in database"});
   } else {
     return  res.status(200).json({message:"Email not in database"});
   }

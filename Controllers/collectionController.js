@@ -1,5 +1,6 @@
 const knex = require("knex")(require("../knexfile"));
 const { v4: uuidv4 } = require("uuid");
+const multer = require("multer");
 
 exports.index = (_req, res) => {
   //Collection items of all users
@@ -13,40 +14,69 @@ exports.index = (_req, res) => {
 };
 
 exports.newCollectionItem = (req, res) => {
-  //Note avatar photo uploading will be set-up in conjunction with front-end
+  //Storage variable
+  const filePath = process.cwd() + "/public/images";
 
-  //Variables
+  // Middleware
+  const storage = multer.diskStorage({
+    destination: function (req, file, callback) {
+      callback(null, filePath);
+    },
+    filename: function (req, file, callback) {
+      callback(
+        null,
+        new Date().valueOf() + "collectionItem" + file.originalname
+      );
+    },
+  });
 
-  const newItem = {
-    users_id: req.body.users_id,
-    item_name: req.body.item_name,
-    description: req.body.description,
-    item_photo: req.body.item_photo,
-  };
+  //Middleware to process the file upload
+  const upload = multer({ storage: storage }).single("item_photo");
 
-  const { users_id, item_name, description, item_photo } = newItem;
-
-  //Validation
-  //Validation missing properties in the request body
-  for (let key in newItem) {
-    if (newItem[key] == undefined) {
-      return res.status(400).json({
-        error: `Empty field on: ${key}. Please make sure to provide information`,
-      });
+  upload(req, res, function (err) {
+    if (err instanceof multer.MulterError) {
+      // A Multer error occurred when uploading
+      return res.status(500).json({ error: "Multer error: " + err.message });
+    } else if (err) {
+      // An unknown error occurred when uploading
+      return res.status(500).json({ error: "Unknown error: " + err.message });
     }
-  }
 
-  //Adding item to database
-  knex("items")
-    .insert({ ...newItem, id: uuidv4() })
-    .then((data) => {
-      // Response returns 201 if successful
-      return res.status(201).json({ success: `Item added to collection` });
-    })
-    //Server error
-    .catch((err) => {
-      res.status(500).json({ error: `Failed to add item, ${err}` });
-    });
+    //Variable to upload new data
+    let addNewCollectionItem = req.body;
+
+    //Validation
+    //Validation missing properties in the request body
+    for (let key in addNewCollectionItem) {
+      if (!addNewCollectionItem[key]) {
+        return res.status(400).json({
+          error: `Empty field on: ${key}. Please make sure to provide information`,
+        });
+      }
+    }
+
+    //When not data is provided to be uploaded
+    if (req.file !== undefined) {
+      const fileName = req.file.filename;
+      addNewCollectionItem = { ...addNewCollectionItem, item_photo: fileName };
+    }
+
+    // if (Object.keys(req.body).length === 0 && req.file === undefined) {
+    //   return res.status(400).json({ error: "Not profile data do be uploaded" });
+    // }
+
+    //Adding item to database
+    knex("items")
+      .insert({ ...addNewCollectionItem, id: uuidv4() })
+      .then((data) => {
+        // Response returns 201 if successful
+        return res.status(201).json({ success: `Item added to collection` });
+      })
+      //Server error
+      .catch((err) => {
+        res.status(500).json({ error: `Failed to add item, ${err}` });
+      });
+  });
 };
 
 exports.deleteCollectionItem = (req, res) => {

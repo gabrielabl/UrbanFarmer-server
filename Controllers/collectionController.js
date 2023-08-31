@@ -2,9 +2,16 @@ const knex = require("knex")(require("../knexfile"));
 const { v4: uuidv4 } = require("uuid");
 const multer = require("multer");
 
-exports.index = (_req, res) => {
+exports.searchItem = (req, res) => {
+    //variables
+    const search=req.body.search;
+ 
   //Collection items of all users
   knex("items")
+  .where('items.item_name','like',`%${search}%`)
+  .join('users','items.users_id','users.id')
+  .select('user_name','avatar_photo','users.id','item_name','description','item_photo')
+ 
     .then((data) => {
       res.status(200).json(data);
     })

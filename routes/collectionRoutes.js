@@ -2,7 +2,7 @@ const router = require('express').Router();
 const collectionController = require('../Controllers/collectionController');
 
 router.route('/')
-.get(collectionController.searchItem)
+.post(collectionController.searchItem)
 .post(collectionController.newCollectionItem)
 
 router.route('/:id')

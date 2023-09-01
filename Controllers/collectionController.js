@@ -10,7 +10,7 @@ exports.searchItem = (req, res) => {
   knex("items")
   .where('items.item_name','like',`%${search}%`)
   .join('users','items.users_id','users.id')
-  .select('user_name','avatar_photo','users.id','item_name','description','item_photo')
+  .select('user_name','avatar_photo','users_id','item_name','description','item_photo', 'items.id')
  
     .then((data) => {
       res.status(200).json(data);

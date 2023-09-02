@@ -110,6 +110,8 @@ exports.profileCollection = (req, res) => {
   const userID = req.params.id;
   knex("items")
     .where({ users_id: userID })
+    .join('users','items.users_id','users.id')
+    .select('user_name','items.id','users_id','item_name','description','item_photo','users.email')  
     .then((data) => {
       //Validating if user exist in the Database
       if (data.length === 0) {

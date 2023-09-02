@@ -21,7 +21,7 @@ app.use((req, res, next) => {
     req.url === "/signup" ||
     req.url === "/login" ||
     req.url === "/emailcheck" ||
-    req === "/"
+    req === "/public/images"
   ) {
     next();
   } else if (req.headers.authorization === undefined) {

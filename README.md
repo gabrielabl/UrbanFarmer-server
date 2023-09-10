@@ -53,13 +53,13 @@ mv .env.sample .env
 npm run migrate
 ```
 
-6. Populate database
+7. Populate database
 
 ```bash
 npm run seed
 ```
 
-6. Run application
+8. Run application
 
 ```bash
 node server.js

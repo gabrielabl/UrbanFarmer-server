@@ -39,13 +39,13 @@ mv .env.sample .env
   
 5. Update environment variable to local server
 
-- `CORS_ORIGIN=`<Include the localhost for the urbanfarmer-client>
-- `PORT=`<include a not used port>
-- `DB_LOCAL_DBNAME=`<mySQL database name>
-- `DB_LOCAL_USER=`<mySQL your username>
-- `DB_LOCAL_PASSWORD=`<mySQL password>
-- `SECRET_KEY=`<generated on the terminal of your choice>
--`DB_LOCAL_HOST=`<mySQL localhost>
+- `CORS_ORIGIN=<Include the localhost for the urbanfarmer-client>`
+- `PORT=<include a not used port>`
+- `DB_LOCAL_DBNAME=<mySQL database name>`
+- `DB_LOCAL_USER=<mySQL your username>`
+- `DB_LOCAL_PASSWORD=<mySQL password>`
+- `SECRET_KEY=<generated on the terminal of your choice>`
+-`DB_LOCAL_HOST=<mySQL localhost>`
 
 6. Database migration
 

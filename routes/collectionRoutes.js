@@ -1,13 +1,13 @@
-const router = require('express').Router();
-const collectionController = require('../Controllers/collectionController');
+const router = require("express").Router();
+const collectionController = require("../Controllers/collectionController");
 
-router.route('/')
-.post(collectionController.newCollectionItem)
+//ADD ITEM
+router.route("/").post(collectionController.newCollectionItem);
 
-router.route('/search')
-.post(collectionController.searchItem)
+//SEARCH ITEMS
+router.route("/search").post(collectionController.searchItem);
 
-router.route('/:id')
-.delete(collectionController.deleteCollectionItem)
+//DELETE ITEM
+router.route("/:id").delete(collectionController.deleteCollectionItem);
 
 module.exports = router;

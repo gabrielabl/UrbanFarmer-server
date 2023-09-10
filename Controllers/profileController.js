@@ -2,11 +2,10 @@ const knex = require("knex")(require("../knexfile"));
 const multer = require("multer");
 
 exports.singleProfile = (req, res) => {
-  // Variables
+  //VARIABLES
   const idReq = req.params.id;
 
-  //Retrieving single profile user from Database
-
+  //RETRIEVING A SINGLE PROFILE FROM THE DATABASE
   knex("users")
     .where({ id: idReq })
     .select(
@@ -20,6 +19,7 @@ exports.singleProfile = (req, res) => {
       "about"
     )
     .then((data) => {
+      //IF DATA LENGTH RETURNS FALSE, IT MEANS THERE IS NOT PROFILE IF THAT ID
       if (!data.length) {
         return res
           .status(404)
@@ -27,19 +27,20 @@ exports.singleProfile = (req, res) => {
       }
       res.status(200).json(data[0]);
     })
+    //SERVER ERROR
     .catch((err) =>
       res.status(400).send({ error: `Error retrieving Profile, ${err}` })
     );
 };
 
 exports.updateProfile = (req, res) => {
-  //Variables
+  //VARIABLE
   const userId = req.params.id;
 
-  //Storage variable
+  //STORAGE PATH
   const filePath = process.cwd() + "/public/images";
 
-  // Middleware
+  //MULTER MIDDLEWARE TO STORE FILE DATA
   const storage = multer.diskStorage({
     destination: function (req, file, callback) {
       callback(null, filePath);
@@ -49,23 +50,23 @@ exports.updateProfile = (req, res) => {
     },
   });
 
-  //Middleware to process the file upload
+  //MIDDLEWARE TO PROCESS THE FILE UPLOADED
   const upload = multer({ storage: storage }).single("avatar_photo");
 
   upload(req, res, function (err) {
     if (err instanceof multer.MulterError) {
-      // A Multer error occurred when uploading
+      // A MULTER ERROR OCCURRED WHEN UPLOADING
       return res.status(500).json({ error: "Multer error: " + err.message });
     } else if (err) {
-      // An unknown error occurred when uploading
+      // AN UNKNOWN ERROR OCCURRED WHEN UPLOADING
       return res.status(500).json({ error: "Unknown error: " + err.message });
     }
 
-    //Variable to upload new data
+    //VARIABLE TO UPLOAD NEW DATA
     let updateProfile = req.body;
 
-    //Validation
-    //Validation missing properties in the request body
+    //VALIDATION
+    //VALIDATION MISSING PROPERTIES IN THE REQUEST BODY
     for (let key in updateProfile) {
       if (!updateProfile[key]) {
         return res.status(400).json({
@@ -74,31 +75,32 @@ exports.updateProfile = (req, res) => {
       }
     }
 
-    //When not data is provided to be uploaded
+    //ADDING FILE TO OBJECT IF PRESENT
     if (req.file !== undefined) {
       const fileName = req.file.filename;
       updateProfile = { ...updateProfile, avatar_photo: fileName };
     }
 
+    //WHEN NOT DATA IS PROVIDED TO BE UPLOADED
     if (Object.keys(req.body).length === 0 && req.file === undefined) {
       return res.status(400).json({ error: "Not profile data do be uploaded" });
     }
 
-    // //Updating profile to Database
+    //UPDATING PROFILE TO DATABASE
     knex("users")
       .where({ id: userId })
       .update(updateProfile)
       .then((data) => {
-        //Validating warehouse ID
+        //VALIDATING USER ID
         if (data === 0) {
           // return 404 with id not found
           return res
             .status(404)
-            .json({ error: `user id: ${userId} not found` });
+            .json({ error: `User id: ${userId} not found` });
         }
         return res.status(200).json(req.body);
       })
-      // server error
+      // SERVER ERROR
       .catch((err) => {
         return res.status(500).json({ error: `Server error, ${err}` });
       });
@@ -106,14 +108,25 @@ exports.updateProfile = (req, res) => {
 };
 
 exports.profileCollection = (req, res) => {
-  //Variables
+  //VARIABLES
   const userID = req.params.id;
+
+  //RETRIEVING COLLECTION ITEMS BASED ON PROFILE ID
   knex("items")
     .where({ users_id: userID })
-    .join('users','items.users_id','users.id')
-    .select('user_name','items.id','users_id','item_name','description','item_photo','users.email')  
+    //JOINING TABLES WITH ITEMS AND SOME USER PROFILE INFORMATION
+    .join("users", "items.users_id", "users.id")
+    .select(
+      "user_name",
+      "items.id",
+      "users_id",
+      "item_name",
+      "description",
+      "item_photo",
+      "users.email"
+    )
     .then((data) => {
-      //Validating if user exist in the Database
+      //VALIDATING IF USER EXIST IN THE DATABASE OR EMPTY COLLECTION
       if (data.length === 0) {
         res.status(200).json({
           message: `User id:${userID} not found or empty collection`,
@@ -123,8 +136,7 @@ exports.profileCollection = (req, res) => {
       }
     })
     .catch((err) => {
-      // Server error
-      console.error("Error when fetching inventory items:", err);
+      // SERVER ERROR
       res.status(500).json({ error: "Internal server error" });
     });
 };

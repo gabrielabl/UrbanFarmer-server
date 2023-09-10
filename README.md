@@ -45,7 +45,7 @@ mv .env.sample .env
 - `DB_LOCAL_USER=<mySQL your username>`
 - `DB_LOCAL_PASSWORD=<mySQL password>`
 - `SECRET_KEY=<generated on the terminal of your choice>`
--`DB_LOCAL_HOST=<mySQL localhost>`
+- `DB_LOCAL_HOST=<mySQL localhost>`
 
 6. Database migration
 

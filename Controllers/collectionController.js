@@ -3,15 +3,24 @@ const { v4: uuidv4 } = require("uuid");
 const multer = require("multer");
 
 exports.searchItem = (req, res) => {
-    //variables
-    const search=req.body.search;
- 
-  //Collection items of all users
+  //VARIABLES
+  const search = req.body.search;
+
+  //COLLECTION ITEMS OF ALL USERS BASED ON SEARCH REQUEST
   knex("items")
-  .where('items.item_name','like',`%${search}%`)
-  .join('users','items.users_id','users.id')
-  .select('user_name','avatar_photo','users_id','item_name','description','item_photo', 'items.id')
- 
+    .where("items.item_name", "like", `%${search}%`)
+    //JOINING TABLE THEN RETRIEVING ITEM DATA AND SOME USER PROFILE INFORMATION
+    .join("users", "items.users_id", "users.id")
+    .select(
+      "user_name",
+      "avatar_photo",
+      "users_id",
+      "item_name",
+      "description",
+      "item_photo",
+      "items.id"
+    )
+
     .then((data) => {
       res.status(200).json(data);
     })
@@ -21,10 +30,10 @@ exports.searchItem = (req, res) => {
 };
 
 exports.newCollectionItem = (req, res) => {
-  //Storage variable
+  //STORAGE VARIABLE
   const filePath = process.cwd() + "/public/images";
 
-  // Middleware
+  // MIDDLEWARE TO STORE FILE
   const storage = multer.diskStorage({
     destination: function (req, file, callback) {
       callback(null, filePath);
@@ -37,23 +46,23 @@ exports.newCollectionItem = (req, res) => {
     },
   });
 
-  //Middleware to process the file upload
+  //MIDDLEWARE TO PROCESS THE FILE UPLOADED
   const upload = multer({ storage: storage }).single("item_photo");
 
   upload(req, res, function (err) {
     if (err instanceof multer.MulterError) {
-      // A Multer error occurred when uploading
+      // A MULTER ERROR OCCURRED WHEN UPLOADING
       return res.status(500).json({ error: "Multer error: " + err.message });
     } else if (err) {
-      // An unknown error occurred when uploading
+      // AN UNKNOWN ERROR OCCURRED WHEN UPLOADING
       return res.status(500).json({ error: "Unknown error: " + err.message });
     }
 
-    //Variable to upload new data
+    //VARIABLE TO UPLOAD NEW DATA
     let addNewCollectionItem = req.body;
 
-    //Validation
-    //Validation missing properties in the request body
+    //VALIDATION
+    //VALIDATION MISSING PROPERTIES IN THE REQUEST BODY
     for (let key in addNewCollectionItem) {
       if (!addNewCollectionItem[key]) {
         return res.status(400).json({
@@ -62,24 +71,20 @@ exports.newCollectionItem = (req, res) => {
       }
     }
 
-    //When not data is provided to be uploaded
+    //WHEN NOT DATA IS PROVIDED TO BE UPLOADED
     if (req.file !== undefined) {
       const fileName = req.file.filename;
       addNewCollectionItem = { ...addNewCollectionItem, item_photo: fileName };
     }
 
-    // if (Object.keys(req.body).length === 0 && req.file === undefined) {
-    //   return res.status(400).json({ error: "Not profile data do be uploaded" });
-    // }
-
-    //Adding item to database
+    //ADDING ITEM TO DATABASE
     knex("items")
       .insert({ ...addNewCollectionItem, id: uuidv4() })
       .then((data) => {
-        // Response returns 201 if successful
+        // RESPONSE RETURNS 201 IF SUCCESSFUL
         return res.status(201).json({ success: `Item added to collection` });
       })
-      //Server error
+      //SERVER ERROR
       .catch((err) => {
         res.status(500).json({ error: `Failed to add item, ${err}` });
       });
@@ -87,26 +92,28 @@ exports.newCollectionItem = (req, res) => {
 };
 
 exports.deleteCollectionItem = (req, res) => {
-  //Deleting item by id
+  //DELETING ITEM BY ID VARIABLE
   const itemId = req.params.id;
+
+  //DELETING ITEM IN THE DATABASE
   knex("items")
     .delete()
     .where({ id: itemId })
     .then((data) => {
-      // Id validation
+      // ID VALIDATION
       if (data === 0) {
-        // Response returns 404 if warehouse ID is not found
+        // RESPONSE RETURNS 404 IF ITEM ID IS NOT FOUND
         return res.status(404).json({
           error: `Item with id: ${itemId} not found to be deleted`,
         });
       }
 
-      //   Response returns 204 if successfully deleted
+      //   RESPONSE RETURNS 204 IF SUCCESSFULLY DELETED
       return res
         .status(204)
         .json({ success: `Item with id: ${itemId} deleted` });
 
-      //  Server error
+      //  SERVER ERROR
     })
     .catch((err) => {
       return res.status(500).json({

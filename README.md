@@ -18,7 +18,7 @@ JSONWEBTOKEN KNEX MYSQL EXPRESS BCRYPT CASUAL CORS DOTENV MULTER UUID
 1. Clone project to local machine
 
 ```bash
-gh repo clone gabrielabl/UrbanFarmer-server
+git clone git@github.com:gabrielabl/UrbanFarmer-server.git
 ```
 2. Move to UrbanFarmer-server folder
 

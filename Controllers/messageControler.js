@@ -133,3 +133,32 @@ exports.createConversation = (req, res) => {
       return res.status(500).json({ error: `Failed to add profile, ${err}` });
     });
 };
+
+exports.newMessage = (req, res) => {
+  //DECONSTRUCTING REQ BODY
+  const { sender_id, receiver_id, message_text, conversations_id } = req.body;
+
+  //VALIDATION MISSING PROPERTIES IN THE REQUEST BODY
+  if (!sender_id || !receiver_id || !message_text || !conversations_id) {
+    return res.status(400).json({
+      error: `Empty field. Please make sure to provide sender_id ,receiver_id and message_text information`,
+    });
+  }
+
+  //ADDING INITIAL MESSAGE TO THE DATA BASE
+  knex("messages")
+    .insert({
+      id: uuidv4(),
+      conversations_id: conversations_id,
+      sender_id: sender_id,
+      receiver_id: receiver_id,
+      message_text: message_text,
+    })
+    .then((data) => {
+      return res.status(201).json({ success: `Message added` });
+    })
+    //CATCH IF ADDING MESSAGE FAILS
+    .catch((err) => {
+      return res.status(500).json({ error: `Failed to add message, ${err}` });
+    });
+};

@@ -6,4 +6,7 @@ router
   .route("/:id")
   .get(messageController.getUserConversationsIds)
 
+//CREATE CONVERSATION + INITIAL MESSAGE
+router.route("/").post(messageController.createConversation)
+
 module.exports = router;

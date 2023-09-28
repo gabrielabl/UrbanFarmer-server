@@ -1,4 +1,6 @@
 const knex = require("knex")(require("../knexfile"));
+const { v4: uuidv4 } = require("uuid");
+const casual = require("casual");
 
 //GET CONVERSATIONS BY USER ID
 exports.getUserConversationsIds = async (req, res) => {
@@ -83,4 +85,51 @@ exports.getUserConversationsIds = async (req, res) => {
     console.error(err);
     res.status(500).json({ error: "Internal server error" });
   }
+};
+
+//CREATE NEW CONVERSATION PLUS FIRST MESSAGE
+exports.createConversation = (req, res) => {
+  //CONVERSATION ID
+  const newConversationId = uuidv4();
+  //DECONSTRUCTING REQ BODY
+  const { sender_id, receiver_id, message_text } = req.body;
+
+  //VALIDATION MISSING PROPERTIES IN THE REQUEST BODY
+  if (!sender_id || !receiver_id || !message_text) {
+    return res.status(400).json({
+      error: `Empty field. Please make sure to provide sender_id ,receiver_id and message_text information`,
+    });
+  }
+
+  //ADDING CONVERSATION TO DATABASE
+  knex("conversations")
+    .insert({ id: newConversationId, conversation_name: casual.first_name })
+    .then((data) => {
+      //ADDING INITIAL MESSAGE TO THE DATA BASE
+      knex("messages")
+        .insert({
+          id: uuidv4(),
+          conversations_id: newConversationId,
+          sender_id: sender_id,
+          receiver_id: receiver_id,
+          message_text: message_text,
+        })
+        .then((data) => {
+          console.log(data);
+        })
+        //CATCH IF ADDING MESSAGE FAILS
+        .catch((err) => {
+          return res
+            .status(500)
+            .json({ error: `Failed to add message, ${err}` });
+        });
+      // RESPONSE RETURNS 201 IF SUCCESSFUL
+      return res
+        .status(201)
+        .json({ success: `Conversation and message added` });
+    })
+    //SERVER ERROR
+    .catch((err) => {
+      return res.status(500).json({ error: `Failed to add profile, ${err}` });
+    });
 };

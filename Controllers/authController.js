@@ -25,7 +25,7 @@ exports.signUp = (req, res) => {
     about: " ",
   };
 
-  // DESCONTRUCTING NEW PROFILE DATA
+  // DECONSTRUCTING NEW PROFILE DATA
   const { user_name, email, password } = newProfile;
 
   //VALIDATION

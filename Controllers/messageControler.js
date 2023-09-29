@@ -11,25 +11,33 @@ exports.getUserConversationsIds = async (req, res) => {
     const senderMessages = await knex("messages")
       .where("sender_id", userId)
       .join("conversations", "messages.conversations_id", "conversations.id")
+      .join("users", "messages.receiver_id", "users.id")
       .select(
         "conversations.id",
         "sender_id",
         "receiver_id",
         "message_text",
-        "messages.created_at"
+        "messages.created_at",
+        "user_name as receiver_name",
+        "avatar_photo as receiver_photo"
       );
 
     //GETTING RECEIVER MESSAGES FROM DB
     const receiverMessages = await knex("messages")
       .where("receiver_id", userId)
       .join("conversations", "messages.conversations_id", "conversations.id")
+      .join("users", "messages.sender_id", "users.id")
       .select(
         "conversations.id",
         "sender_id",
         "receiver_id",
         "message_text",
-        "messages.created_at"
+        "messages.created_at",
+        "user_name as sender_name",
+        "avatar_photo as sender_photo"
       );
+
+      console.log(receiverMessages)
 
     //COMBINING RECEIVER + SENDER MESSAGES
     const allMessages = [...senderMessages, ...receiverMessages];
@@ -55,7 +63,11 @@ exports.getUserConversationsIds = async (req, res) => {
           messages: [
             {
               sender_id: message.sender_id,
+              sender_name: message.sender_name,
+              sender_photo: message.sender_photo,
               receiver_id: message.receiver_id,
+              receiver_name: message.receiver_name,
+              receiver_photo: message.receiver_photo,
               message: message.message_text,
               timestamp: message.created_at,
             },
@@ -66,7 +78,11 @@ exports.getUserConversationsIds = async (req, res) => {
         // PUSH EXISTING OBJECT MESSAGE
         groupedMessages[gMessagesIndex].messages.push({
           sender_id: message.sender_id,
+          sender_name: message.sender_name,
+          sender_photo: message.sender_photo,
           receiver_id: message.receiver_id,
+          receiver_name: message.receiver_name,
+          receiver_photo: message.receiver_photo,
           message: message.message_text,
           timestamp: message.created_at,
         });

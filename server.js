@@ -56,6 +56,6 @@ app.get("/", (_req, res) => {
 app.use("/profile", profileRoutes);
 app.use("/collection", collectionRoutes);
 app.use("/", authRoutes);
-app.use("/messages",messageRoute)
+app.use("/messages", messageRoute)
 
 app.listen(PORT, () => console.log(`Listening on http://localhost:${PORT}`));

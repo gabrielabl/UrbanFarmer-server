@@ -13,6 +13,7 @@ exports.getUserConversationsIds = async (req, res) => {
       .join("conversations", "messages.conversations_id", "conversations.id")
       .join("users", "messages.receiver_id", "users.id")
       .select(
+        "messages.id as message_id",
         "conversations.id",
         "sender_id",
         "receiver_id",
@@ -28,6 +29,7 @@ exports.getUserConversationsIds = async (req, res) => {
       .join("conversations", "messages.conversations_id", "conversations.id")
       .join("users", "messages.sender_id", "users.id")
       .select(
+        "messages.id as message_id",
         "conversations.id",
         "sender_id",
         "receiver_id",
@@ -70,6 +72,7 @@ exports.getUserConversationsIds = async (req, res) => {
               receiver_photo: message.receiver_photo,
               message: message.message_text,
               timestamp: message.created_at,
+              message_id:message.message_id
             },
           ],
         });
@@ -85,13 +88,14 @@ exports.getUserConversationsIds = async (req, res) => {
           receiver_photo: message.receiver_photo,
           message: message.message_text,
           timestamp: message.created_at,
+          message_id:message.message_id
         });
       }
     });
 
     //IF USER DOES NOT HAVE ANY CONVERSATION
     if (groupedMessages.length === 0) {
-      res.status(200).json({
+      res.status(404).json({
         message: `User id:${userId} has no messages.`,
       });
     } else {

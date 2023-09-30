@@ -70,13 +70,12 @@ node server.js
 - PROFILE - create and edit
 - COLLECTION ITEM: add,edit and delete
 - SEARCH: get all collection items or defined by user
-
+- MESSAGES: communicate with other users, create new conversations and send messages
 
 ## Future Implementation 
 
 
 ### Phase 2
-- Messages: Users will be able to communicate with each other through a page of the application, and links to routes will be either at the header of the application or at the “trade” button in the user’s collection. Also, the user will be able to delete conversations.
 
 - Friends: Enabling feature to link and add other users to your profile. The user profile will include a box that contains all friends and other profiles will have an “add friend” button. 
 

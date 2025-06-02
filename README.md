@@ -1,7 +1,4 @@
 
-![Logo](https://urbanfarmer.netlify.app/static/media/urban-farmer-logo.747fb3c3338aabdcd514.png)
-
-
 # UrbanFarmer-Server
 
 A user-friendly app for connecting city residents passionate about urban farming and craft food production. Streamlined item listing for trade and facilitated community connections for food enthusiasts.
@@ -86,11 +83,6 @@ node server.js
 - Likes: Implementing a like button in the profile.
 
 - Views: Implementing a view counter that will be updated every time another user visualizes the user’s profile. 
-
-## Deployed version
-
-https://urbanfarmer.netlify.app/
-
 
 ## Author
 
